@@ -1,6 +1,7 @@
 const fetch = require('node-fetch');
 const express = require('express');
-const { clientId, clientSecret, port } = require('./config.json');
+require('dotenv').config({ path: __dirname + "/../.env" })
+const { clientId, clientSecret, port } = [process.env.CLIENT_ID, process.env.CLIENT_SECRET, process.env.PORT];
 
 const app = express();
 
