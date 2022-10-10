@@ -1,0 +1,28 @@
+{
+  "name": "superharmony-polls",
+  "version": "0.1.0",
+  "description": "polls that I can host on my website",
+  "main": "index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "ts-node src/index.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "discord-rpc": "^4.0.1",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.1",
+    "joi": "^17.6.2",
+    "mongodb": "^4.10.0",
+    "mongoose": "^6.6.5",
+    "ts-node-dev": "^2.0.0",
+    "undici": "^5.2.0"
+  },
+  "devDependencies": {
+    "@types/discord-rpc": "^4.0.3",
+    "@types/express": "^4.17.14",
+    "@types/node": "^18.8.0"
+  }
+}

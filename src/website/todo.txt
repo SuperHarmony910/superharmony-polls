@@ -1,0 +1,6 @@
+what do i want:
+ - i want to know the username of the user that submitted the poll (if done through discord, with query string params like "?username=btoa(username)" dont ask why i want it in base64 idk either
+   !! - This is being worked on in src/oauth
+ - i can deal with a bad website to submit the poll as well ig..
+ - send this data to like some database..
+ - tbh i cbf to make a database can i.. can't we just store the data on local json files 😭
