@@ -1,10 +1,10 @@
 // Import and configure libraries
 import express, { Express, Request, Response } from 'express';
-import { config } from 'dotenv'
-config({ path: __dirname + "/../.env" })
+import * as dotenv from 'dotenv'
+dotenv.config()
 
 // Import routes
-import polls from './polls'
+import polls from './routes/polls'
 
 const app: Express = express();
 app.use(express.json())
@@ -25,5 +25,5 @@ app.get('/api', (req: Request, res: Response) => {
 
 
 app.listen(port, () => {
-  console.log(`Server is running at https://localhost:${port}`);
+  console.log(`Server is running at http://localhost:${port}`);
 });
