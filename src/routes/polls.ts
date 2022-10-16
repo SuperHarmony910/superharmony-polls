@@ -1,16 +1,10 @@
 import express, { Router, Request, Response } from 'express'
 import path from 'path'
+import { pollQuestion, pollSubmission } from '../models/pollModels'
 const app = Router()
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
-
-interface pollQuestion {
-    id: number,
-    name: string,
-    description: string,
-    options: string[]
-}
 
 const polls: pollQuestion[] = [{
     id: 1,
@@ -46,7 +40,7 @@ app.get('/:id', (req: Request, res: Response) => {
     return res.sendFile(path.resolve('public/survey.html'))
 })
 
-app.get('/:id/json', (req: Request, res: Response) => {
+app.get('/:id/json', ({ query }, req: Request, res: Response) => {
     const poll = polls.find(s => s.id === parseInt(req.params.id));
     if (!poll) res.status(404).send('The poll with the given ID was not found.');
     res.send(poll);
