@@ -1,4 +1,5 @@
 import * as dotenv from 'dotenv'
+import 'node-fetch'
 dotenv.config({ path: '/../.env' })
 import { Request } from 'express';
 
@@ -26,7 +27,7 @@ export async function discordOauth(req: Request) {
                 },
             });
 
-            const oauthData = await oauthResult.json();
+            const oauthData: any = await oauthResult.json();
             console.log(oauthData)
 
             const userResult = await fetch('https://discord.com/api/users/@me', {
