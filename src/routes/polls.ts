@@ -42,11 +42,11 @@ app.get('/:id', async (req: Request, res: Response) => {
                 
         //     }
         // }
-        const penis = await discordOauth(req)
-        console.log(penis)
+        const oauthRes = await discordOauth(req)
+        console.log(oauthRes)
         res.send('Thank you for your submission!');
     }
-    return res.sendFile(path.resolve('public/survey.html'))
+    return res.sendFile(path.resolve('public/poll.html'))
 })
 
 app.get('/:id/json', async (req: Request, res: Response) => {

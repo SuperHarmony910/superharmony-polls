@@ -1,4 +1,4 @@
-// this is meant to be local, do not host this file
+// this is meant to be local, do not host this file on website
 
 const rpc = require("discord-rpc")
 require("dotenv").config({ path: __dirname + "/../.env" })
