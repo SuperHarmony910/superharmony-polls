@@ -4,6 +4,7 @@ import path from 'path'
 import { pollQuestion, pollSubmission } from '../models/pollModels'
 const app = Router()
 let submission: pollSubmission;
+app.use(express.static(path.resolve(__dirname + '../public')));
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
@@ -35,7 +36,8 @@ app.get('/:id', async (req: Request, res: Response) => {
     if (!poll) return res.status(404).send('The poll with the given ID was not found.');
     if (req.query['choice']) { // if the choice is contained in the url (the person probably sent it from discord)- this does not require frontend.
         const choice = parseInt(String(req.query['choice']))
-        if (choice > poll.options.length || isNaN(choice)) return res.status(400).send('Invalid choice');
+        console.log(choice)
+       // if (choice > poll.options.length || isNaN(choice)) return res.status(400).send('Invalid choice');
         // create submit code
         // submission = {
         //     discord: {
@@ -44,7 +46,7 @@ app.get('/:id', async (req: Request, res: Response) => {
         // }
         const oauthRes = await discordOauth(req)
         console.log(oauthRes)
-        res.send('Thank you for your submission!');
+        await res.send('Thank you for your submission!');
     }
     return res.sendFile(path.resolve('public/poll.html'))
 })
@@ -60,7 +62,13 @@ app.get('/:id/json', async (req: Request, res: Response) => {
 
 app.post("/:id", (req: Request, res: Response) => {
     console.log(req.body);
-    return res.send(`Thank you for your submission! You submitted <b>${req.body["option"]}</b> as your option.`)
+    submission = {
+        choice: parseInt(req.body['option']),
+        who: {
+            username: req.body['username'] || undefined,
+        }
+    }
+    return res.send(`thank youu for responding to my poll ${submission.who?.username ?? ''}! u submitted <b>option ${req.body["option"]}</b> as your option.`)
 });
 
 export default app

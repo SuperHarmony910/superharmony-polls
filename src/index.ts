@@ -2,6 +2,7 @@
 import express, { Express, Request, Response } from 'express';
 import * as dotenv from 'dotenv'
 dotenv.config()
+import 'colors'
 
 // Import routes
 import polls from './routes/polls'
@@ -25,5 +26,5 @@ app.get('/api', (req: Request, res: Response) => {
 
 
 app.listen(port, () => {
-  console.log(`Server is running at http://localhost:${port}`);
+  console.log(`[SERVER]`.magenta + ` Server started at http://localhost:${port}`.green);
 });

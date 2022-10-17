@@ -1,5 +1,5 @@
 import * as dotenv from 'dotenv'
-import 'node-fetch'
+import fetch from 'node-fetch'
 dotenv.config({ path: '/../.env' })
 import { Request } from 'express';
 
@@ -19,7 +19,7 @@ export async function discordOauth(req: Request) {
                     client_secret: clientSecret,
                     code: String(code),
                     grant_type: 'authorization_code',
-                    redirect_uri: `http://localhost:${port}`,
+                    redirect_uri: `http://localhost:${port}/polls/1?choice=1`,
                     scope: 'identify',
                 }),
                 headers: {

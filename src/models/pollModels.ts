@@ -7,9 +7,9 @@ export interface pollQuestion {
 
 export interface pollSubmission {
     choice: number,
-    discord?: {
-        id: number,
-        username: string,
-        discriminator: number
+    who?: {
+        discord_id?: number,
+        username: string | undefined,
+        discriminator?: number
     }
 }
