@@ -1,4 +1,5 @@
 import express, { Router, Request, Response } from 'express'
+import { discordOauth } from "../oauth/discordOauth"
 import path from 'path'
 import { pollQuestion, pollSubmission } from '../models/pollModels'
 const app = Router()
@@ -40,15 +41,18 @@ app.get('/:id', (req: Request, res: Response) => {
     return res.sendFile(path.resolve('public/survey.html'))
 })
 
-app.get('/:id/json', ({ query }, req: Request, res: Response) => {
+app.get('/:id/json', async (req: Request, res: Response) => {
+    const user = await discordOauth(req)
+    console.log(user)
+    console.log(req.query)
     const poll = polls.find(s => s.id === parseInt(req.params.id));
     if (!poll) res.status(404).send('The poll with the given ID was not found.');
     res.send(poll);
 })
 
-app.post("/:id/post", (req: Request, res: Response) => {
-    res.send('POST request to the homepage')
+app.post("/:id", (req: Request, res: Response) => {
     console.log(req.body);
+    return res.send(`Thank you for your submission! You submitted <b>${req.body["option"]}</b> as your option.`)
 });
 
 export default app

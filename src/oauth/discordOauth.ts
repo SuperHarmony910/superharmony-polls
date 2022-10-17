@@ -1,10 +1,13 @@
 import * as dotenv from 'dotenv'
-dotenv.config({ path: '../.env' })
+dotenv.config({ path: '/../.env' })
+import { Request } from 'express';
 
-const [clientId, clientSecret, port] = [process.env.CLIENT_ID, process.env.CLIENT_SECRET, process.env.PORT];
+const clientId = String(process.env.CLIENT_ID)
+const clientSecret = String(process.env.CLIENT_SECRET)
+const port = process.env.PORT
 
-export async function discordOauth(query: QueryString.Qs) {
-    const { code } = query;
+export async function discordOauth(req: Request) {
+    const { code } = req.query;
 
     if (code) {
         try {
@@ -13,7 +16,7 @@ export async function discordOauth(query: QueryString.Qs) {
                 body: new URLSearchParams({
                     client_id: clientId,
                     client_secret: clientSecret,
-                    code,
+                    code: String(code),
                     grant_type: 'authorization_code',
                     redirect_uri: `http://localhost:${port}`,
                     scope: 'identify',

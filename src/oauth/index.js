@@ -1,6 +1,6 @@
 const fetch = require('node-fetch');
 const express = require('express');
-require('dotenv').config({ path: __dirname + "/../src/.env" })
+require('dotenv').config({ path: __dirname + "/../../.env" })
 const [clientId, clientSecret, port] = [process.env.CLIENT_ID, process.env.CLIENT_SECRET, process.env.PORT];
 
 const app = express();
