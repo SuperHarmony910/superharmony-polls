@@ -5,3 +5,4 @@ what do i want:
    !! - src/public/survey.html
  - send this data to like some database..
  - tbh i cbf to make a database can i.. can't we just store the data on local json files 😭
+ - maybe the query string ?choice won't work as oauth URIs are super strict and can u rlly be ficked to add /polls/:id?choice=1 then that for 2, 3, 4, 5 for all the polls
