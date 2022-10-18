@@ -37,7 +37,7 @@ app.get('/:id', async (req: Request, res: Response) => {
     if (req.query['choice']) { // if the choice is contained in the url (the person probably sent it from discord)- this does not require frontend.
         const choice = parseInt(String(req.query['choice']))
         console.log(choice)
-       // if (choice > poll.options.length || isNaN(choice)) return res.status(400).send('Invalid choice');
+        if (choice > poll.options.length || isNaN(choice)) return res.status(400).send('Invalid choice');
         // create submit code
         // submission = {
         //     discord: {
@@ -46,7 +46,7 @@ app.get('/:id', async (req: Request, res: Response) => {
         // }
         const oauthRes = await discordOauth(req)
         console.log(oauthRes)
-        await res.send('Thank you for your submission!');
+        res.send('Thank you for your submission!');
     }
     return res.sendFile(path.resolve('public/poll.html'))
 })
@@ -61,13 +61,13 @@ app.get('/:id/json', async (req: Request, res: Response) => {
 })
 
 app.post("/:id", (req: Request, res: Response) => {
-    console.log(req.body);
     submission = {
         choice: parseInt(req.body['option']),
         who: {
             username: req.body['username'] || undefined,
         }
     }
+    console.log(submission)
     return res.send(`thank youu for responding to my poll ${submission.who?.username ?? ''}! u submitted <b>option ${req.body["option"]}</b> as your option.`)
 });
 
