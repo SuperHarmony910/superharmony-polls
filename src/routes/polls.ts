@@ -5,9 +5,11 @@ import { pollQuestion, pollSubmission } from '../models/pollModels'
 const app = Router()
 let submission: pollSubmission;
 app.use(express.static(path.resolve(__dirname + '../public')));
+import cookieParser from 'cookie-parser'
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
+app.use(cookieParser())
 
 const polls: pollQuestion[] = [{
     id: 1,

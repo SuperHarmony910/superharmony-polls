@@ -6,3 +6,10 @@ what do i want:
  - send this data to like some database..
  - tbh i cbf to make a database can i.. can't we just store the data on local json files 😭
  - maybe the query string ?choice won't work as oauth URIs are super strict and can u rlly be ficked to add /polls/:id?choice=1 then that for 2, 3, 4, 5 for all the polls
+  - ^^ possible fix (shower thought hehe) -> cookies
+    1. when the person clicks from the rpc, they get take to polls/id?choice=1&discord=true
+    2. make some code in express so that when query string `discord` is true, it takes them to oauth.
+      also make sure to save the poll number and choice in cookies, explained in step 4
+    3. once that's done, the OAuth URI in discord will take them to just /polls, and here is where cookies comes into play
+    4. fetch discord data with code, push to cookie. get variable choice in cookies. navigate to /polls/${pollNo}?choice=${pollChoice}
+    5. make these cookies expire- however, consider a prompt that would allow for permanent cookies.
