@@ -1,9 +1,9 @@
 import express, { Router, Request, Response } from 'express'
 import { discordOauth } from "../oauth/discordOauth"
 import path from 'path'
-import { pollQuestion, pollSubmission } from '../models/pollModels'
+import { PollQuestion, PollSubmission, discordOauthUrl } from '../models/pollModels'
 const app = Router()
-let submission: pollSubmission;
+let submission: PollSubmission;
 app.use(express.static(path.resolve(__dirname + '../public')));
 import cookieParser from 'cookie-parser'
 
@@ -11,7 +11,7 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser())
 
-const polls: pollQuestion[] = [{
+const polls: PollQuestion[] = [{
     id: 1,
     name: 'poll 1',
     description: 'poll 1 description',
@@ -30,27 +30,38 @@ app.use((req, res, next) => {
 })
 
 app.get('/', (req: Request, res: Response) => {
-    res.send(`Available polls:\n\n${polls.map(p => p.name).join(', \n')}`)
+    return res.send(`Available polls:\n\n${polls.map(p => p.name).join(', \n')}`)
 })
 
 app.get('/:id', async (req: Request, res: Response) => {
     const poll = polls.find(s => s.id === parseInt(req.params.id));
     if (!poll) return res.status(404).send('The poll with the given ID was not found.');
-    if (req.query['choice']) { // if the choice is contained in the url (the person probably sent it from discord)- this does not require frontend.
-        const choice = parseInt(String(req.query['choice']))
-        console.log(choice)
+    if (req.query['json']) { // for rpc when calls json
+        return res.send(polls[poll.id])
+    }
+    const choice = parseInt(String(req.query['choice'])) || NaN;
+    // CANNOT SET HEADERS MEANS THAT YOU CANT SET ANY VALUE WITH res.x MORE THAN ONCE YEHASHUJFDSKAHUAFGHBUIUJ
+    res.cookie('identification', { option: choice ?? null, discord: null }) // save the option in a cookie
+    console.log(req.cookies.identification)
+    if (req.query['discord']) { // if the choice is contained in the url (the person probably sent it from discord)- this does not require frontend.
+        res.redirect(discordOauthUrl)
+        const user = discordOauth(req)
+        res.cookie('identification', { option: req.cookies.identification.option, discord: user })
+        console.log(req.cookies)
         if (choice > poll.options.length || isNaN(choice)) return res.status(400).send('Invalid choice');
         // create submit code
-        // submission = {
-        //     discord: {
-                
-        //     }
-        // }
-        const oauthRes = await discordOauth(req)
-        console.log(oauthRes)
-        res.send('Thank you for your submission!');
+        submission = {
+            choice: choice,
+            who: {
+                username: req.cookies.identification.discord.username,
+                discriminator: req.cookies.identification.discord.discriminator,
+                discord_id: req.cookies.identification.discord.id
+            }
+        }
+        console.log(submission)
+        //res.write('Thank you for your submission!');
     }
-    return res.sendFile(path.resolve('public/poll.html'))
+    res.sendFile(path.resolve('public/poll.html'))
 })
 
 app.get('/:id/json', async (req: Request, res: Response) => {
@@ -74,3 +85,4 @@ app.post("/:id", (req: Request, res: Response) => {
 });
 
 export default app
+export { submission }

@@ -1,11 +1,11 @@
-export interface pollQuestion {
+export interface PollQuestion {
     id: number,
     name: string,
     description: string,
     options: string[]
 }
 
-export interface pollSubmission {
+export interface PollSubmission {
     choice: number,
     who?: {
         discord_id?: number,
@@ -13,3 +13,5 @@ export interface pollSubmission {
         discriminator?: number
     }
 }
+
+export const discordOauthUrl: string = 'https://discord.com/api/oauth2/authorize?client_id=887832942804619304&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fpolls&response_type=code&scope=identify'
