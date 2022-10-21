@@ -21,8 +21,10 @@
     "joi": "^17.6.2",
     "mongodb": "^4.10.0",
     "mongoose": "^6.6.5",
+    "morgan": "^1.10.0",
     "node-fetch": "^2.6.7",
-    "ts-node-dev": "^2.0.0"
+    "ts-node-dev": "^2.0.0",
+    "winston": "^3.8.2"
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.3",

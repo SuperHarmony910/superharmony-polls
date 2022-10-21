@@ -30,6 +30,7 @@ app.use((req, res, next) => {
 })
 
 app.get('/', (req: Request, res: Response) => {
+    console.log('/')
     return res.send(`Available polls:\n\n${polls.map(p => p.name).join(', \n')}`)
 })
 
@@ -37,17 +38,22 @@ app.get('/:id', async (req: Request, res: Response) => {
     const poll = polls.find(s => s.id === parseInt(req.params.id));
     if (!poll) return res.status(404).send('The poll with the given ID was not found.');
     if (req.query['json']) { // for rpc when calls json
+        console.log('json')
         return res.send(polls[poll.id])
     }
     const choice = parseInt(String(req.query['choice'])) || NaN;
     // CANNOT SET HEADERS MEANS THAT YOU CANT SET ANY VALUE WITH res.x MORE THAN ONCE YEHASHUJFDSKAHUAFGHBUIUJ
-    res.cookie('identification', { option: choice ?? null, discord: null }) // save the option in a cookie
+    res.cookie('identification', { choice: choice ?? null, discord: null }) // save the option in a cookie
+    console.log(req.cookies)
+    console.debug('id set')
     console.log(req.cookies.identification)
     if (req.query['discord']) { // if the choice is contained in the url (the person probably sent it from discord)- this does not require frontend.
         res.redirect(discordOauthUrl)
+        console.debug('redirected')
         const user = discordOauth(req)
-        res.cookie('identification', { option: req.cookies.identification.option, discord: user })
-        console.log(req.cookies)
+        console.log(user)
+        res.cookie('identification', { choice: this ?? null, discord: user })
+        console.debug('cookie set again')
         if (choice > poll.options.length || isNaN(choice)) return res.status(400).send('Invalid choice');
         // create submit code
         submission = {
@@ -62,6 +68,7 @@ app.get('/:id', async (req: Request, res: Response) => {
         //res.write('Thank you for your submission!');
     }
     res.sendFile(path.resolve('public/poll.html'))
+    console.debug('file sent')
 })
 
 app.get('/:id/json', async (req: Request, res: Response) => {
