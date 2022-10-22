@@ -2,6 +2,7 @@ import express, { Router, Request, Response } from 'express'
 import { discordOauth } from "../oauth/discordOauth"
 import path from 'path'
 import { PollQuestion, PollSubmission, discordOauthUrl } from '../models/pollModels'
+import fetch from 'node-fetch'
 const app = Router()
 let submission: PollSubmission;
 app.use(express.static(path.resolve(__dirname + '../public')));
@@ -29,11 +30,6 @@ app.use((req, res, next) => {
     next()
 })
 
-app.get('/', (req: Request, res: Response) => {
-    console.log('/')
-    return res.send(`Available polls:\n\n${polls.map(p => p.name).join(', \n')}`)
-})
-
 app.get('/:id', async (req: Request, res: Response) => {
     const poll = polls.find(s => s.id === parseInt(req.params.id));
     if (!poll) return res.status(404).send('The poll with the given ID was not found.');
@@ -42,18 +38,23 @@ app.get('/:id', async (req: Request, res: Response) => {
         return res.send(polls[poll.id])
     }
     const choice = parseInt(String(req.query['choice'])) || NaN;
-    // CANNOT SET HEADERS MEANS THAT YOU CANT SET ANY VALUE WITH res.x MORE THAN ONCE YEHASHUJFDSKAHUAFGHBUIUJ
-    res.cookie('identification', { choice: choice ?? null, discord: null }) // save the option in a cookie
-    console.log(req.cookies)
-    console.debug('id set')
-    console.log(req.cookies.identification)
     if (req.query['discord']) { // if the choice is contained in the url (the person probably sent it from discord)- this does not require frontend.
-        res.redirect(discordOauthUrl)
+        res.cookie('identification', { poll: poll, choice: choice ?? null, discord: null }) // save the option in a cookie
         console.debug('redirected')
-        const user = discordOauth(req)
-        console.log(user)
-        res.cookie('identification', { choice: this ?? null, discord: user })
-        console.debug('cookie set again')
+        return res.redirect(discordOauthUrl)
+    }
+    res.sendFile(path.resolve('public/poll.html'))
+    console.debug('file sent')
+})
+
+app.get('/', async (req: Request, res: Response) => {
+    if (req.query['oauthSuccess']) {
+        if (!req.cookies.identification) return res.status(400).send('No identification cookie found. Did you come back from the <a href="">Discord OAuth prompt?</a>')
+        let choice = req.cookies.identification.choice
+        let poll = req.cookies.identification.poll
+        const user = await discordOauth(req)
+        console.log('usr: ', user)
+        res.cookie('identification', { poll: poll, choice: this ?? null, discord: user })
         if (choice > poll.options.length || isNaN(choice)) return res.status(400).send('Invalid choice');
         // create submit code
         submission = {
@@ -64,12 +65,15 @@ app.get('/:id', async (req: Request, res: Response) => {
                 discord_id: req.cookies.identification.discord.id
             }
         }
-        console.log(submission)
-        //res.write('Thank you for your submission!');
+        return fetch(`${req.url}/polls/${poll.id}`, {
+            method: 'POST',
+            body: JSON.stringify(submission),
+            headers: { 'Content-Type': 'application/json' },
+        })
     }
-    res.sendFile(path.resolve('public/poll.html'))
-    console.debug('file sent')
+    return res.send(`Available polls:\n\n${polls.map(p => p.name).join(', \n')}`)
 })
+
 
 app.get('/:id/json', async (req: Request, res: Response) => {
     const user = await discordOauth(req)
@@ -82,7 +86,7 @@ app.get('/:id/json', async (req: Request, res: Response) => {
 
 app.post("/:id", (req: Request, res: Response) => {
     submission = {
-        choice: parseInt(req.body['option']),
+        choice: parseInt(req.body['option'] ?? req.body['choice']),
         who: {
             username: req.body['username'] || undefined,
         }

@@ -2,6 +2,8 @@ import * as dotenv from 'dotenv'
 import fetch from 'node-fetch'
 dotenv.config({ path: '/../.env' })
 import { Request } from 'express';
+import { discordOauthUrl } from '../models/pollModels';
+const redirectUri = new URL(discordOauthUrl).searchParams.get('redirect_uri') || 'http://localhost:3000/polls?oauthSuccess=true'
 
 const clientId = String(process.env.CLIENT_ID)
 const clientSecret = String(process.env.CLIENT_SECRET)
@@ -19,7 +21,7 @@ export async function discordOauth(req: Request) {
                     client_secret: clientSecret,
                     code: String(code),
                     grant_type: 'authorization_code',
-                    redirect_uri: `http://localhost:${port}/polls/1?choice=1`,
+                    redirect_uri: redirectUri,
                     scope: 'identify',
                 }),
                 headers: {
@@ -28,7 +30,6 @@ export async function discordOauth(req: Request) {
             });
 
             const oauthData: any = await oauthResult.json();
-            console.log(oauthData)
 
             const userResult = await fetch('https://discord.com/api/users/@me', {
                 headers: {
