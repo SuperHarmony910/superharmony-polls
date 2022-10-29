@@ -6,6 +6,7 @@ export interface PollQuestion {
 }
 
 export interface PollSubmission {
+    poll: number,
     choice: number,
     who?: {
         discord_id?: number,

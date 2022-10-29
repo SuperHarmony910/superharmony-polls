@@ -47,21 +47,23 @@ app.get('/:id', async (req: Request, res: Response) => {
     console.debug('file sent')
 })
 
-app.get('/', (req: Request, res: Response) => {
+app.get('/', async (req: Request, res: Response) => {
+    console.debug('rememberChoice:', req.cookies.rememberChoice)
     if (req.query['oauthSuccess']) {
         if (!req.cookies.rememberChoice) return res.status(400).send('No identification cookie found. Did you come back from the <a href="">Discord OAuth prompt?</a>')
         let choice: number = parseInt(req.cookies.rememberChoice.choice) || NaN;
         let poll = req.cookies.rememberChoice.poll
-        const user = discordOauth(req)
-        res.cookie('identification', { poll: poll, choice: choice, discord: user }, { maxAge: 1000 * 60 * 5 })
+        const user = await discordOauth(req)
+        // ! Consider re-implementing this code if you want to keep the Discord user cached; that way they don't have to answer the prompt every time! res.cookie('identification', user, { maxAge: 1000 * 60 * 5 }) 
         if (choice > poll.options.length || isNaN(choice)) return res.status(400).send(`Invalid choice. ${choice}`);
         // create submit code
         submission = {
+            poll: poll.id,
             choice: choice,
             who: {
-                username: req.cookies.identification.discord.username,
-                discriminator: req.cookies.identification.discord.discriminator,
-                discord_id: req.cookies.identification.discord.id
+                username: user.username,
+                discriminator: user.discriminator,
+                discord_id: user.id
             }
         }
         res.send(submission)
@@ -86,6 +88,7 @@ app.get('/:id/json', async (req: Request, res: Response) => {
 app.post("/:id", (req: Request, res: Response) => {
     if (req.body['option']) { //frontend response
         submission = {
+            poll: parseInt(req.params.id),
             choice: parseInt(req.body['option'] ?? req.body['choice']),
             who: {
                 username: req.body['username'] || undefined,
