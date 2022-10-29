@@ -4,9 +4,8 @@
   "description": "polls that I can host on my website",
   "main": "index.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "ts-node src/index.ts",
-    "start": "cd src && nodemon index.ts"
+    "start": "cd src && ts-node index.ts",
+    "test": "cd src && nodemon index.ts"
   },
   "keywords": [],
   "author": "",
