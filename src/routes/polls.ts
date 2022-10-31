@@ -78,7 +78,6 @@ app.get('/', async (req: Request, res: Response) => {
 
 
 app.get('/:id/json', async (req: Request, res: Response) => {
-    const user = await discordOauth(req)
     console.log(req.query)
     const poll = polls.find(s => s.id === parseInt(req.params.id));
     if (!poll) res.status(404).send('The poll with the given ID was not found.');
@@ -92,10 +91,14 @@ app.post("/:id", (req: Request, res: Response) => {
             choice: parseInt(req.body['option'] ?? req.body['choice']),
             who: {
                 username: req.body['username'] || undefined,
+            },
+            date: {
+                day: (new Date).toLocaleDateString(),
+                time: (new Date).toLocaleTimeString()
             }
         }
     } else submission = req.body //rpc response
-    return res.send(`thank youu for responding to my poll ${submission.who?.username ?? ''}! u submitted <b>option ${req.body["option"]}</b> as your option.`)
+    return res.send(`thank youu for responding to my poll ${submission.who?.username ?? ''}! u submitted <b>option ${req.body["option"]}</b> as your option. time = ${submission.date?.time}`)
 });
 
 export default app
