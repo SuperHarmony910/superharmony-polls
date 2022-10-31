@@ -5,9 +5,9 @@ export interface PollQuestion {
     options: string[]
 }
 
-export class PollSubmission {
-    poll = 0;
-    choice = 0;
+export interface PollSubmission {
+    poll: number;
+    choice: number;
     who?: {
         discord_id?: number;
         username: string | undefined;
