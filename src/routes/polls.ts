@@ -129,16 +129,27 @@ app.post("/:id", async (req: Request, res: Response) => {
   // Get the default connection
   const db = mongoose.connection;
 
-  const submissionSchema = new mongoose.Schema();
-  submissionSchema.add(Object(submission))
+  const submissionSchema = new mongoose.Schema<PollSubmission>({
+      poll: {type: number, required: true};
+      choice: {type: number, required: true};
+      who?: {
+          discord_id?: number;
+          username: string | undefined;
+          discriminator?: number;
+      };
+      date?: {
+          day: string,
+          time: string
+      }
+
+  });
+  console.log(submissionSchema);
 
   // Compile model from schema
   const submissionModel = mongoose.model("submission", submissionSchema);
-  await submissionModel.save((err: any) => {
-    if (err) return console.error(err);
-    // saved!
+  await submissionModel.save().catch((err: any) => {
+    console.error(err);
   });
-  
 
   // Bind connection to error event (to get notification of connection errors)
   db.on("error", console.error.bind(console, "MongoDB connection error:"));
