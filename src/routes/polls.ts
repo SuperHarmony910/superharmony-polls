@@ -5,7 +5,7 @@ import {
   PollQuestion,
   PollSubmission,
   discordOauthUrl,
-  submissionModel
+  Submission
 } from "../models/pollModels";
 import fetch from "node-fetch";
 const app = Router();
@@ -17,6 +17,8 @@ import mongoose from "mongoose";
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+import dotenv from "dotenv";
+const mongoPwd = process.env.MONGO_PWD
 
 const polls: PollQuestion[] = [
   {
@@ -86,8 +88,15 @@ app.get("/", async (req: Request, res: Response) => {
         discriminator: user.discriminator,
         discord_id: user.id,
       },
+      date: {
+        day: new Date().toLocaleDateString(),
+        time: new Date().toLocaleTimeString(),
+      },
     };
-    res.send(submission);
+    res.send(
+      `thank youu for responding to my poll ${submission.who?.username ?? ""
+      }! u submitted <b>option ${submission.choice}</b> as your option.` //frontend response
+    );
     return fetch(`${req.protocol + "://" + req.get("host")}/polls/${poll.id}`, {
       method: "POST",
       body: JSON.stringify(submission),
@@ -124,22 +133,29 @@ app.post("/:id", async (req: Request, res: Response) => {
 
   // upload to database
   // Set up default mongoose connection
-  const mongoDB = "mongodb://127.0.0.1/my_database";
-  await mongoose.connect(mongoDB);
+  await mongoose.connect(`mongodb+srv://sus:${mongoPwd}@cluster0.5t37zkq.mongodb.net/pollSubmissions?retryWrites=true&w=majority`)
+    .then(() => {
+        console.log(`CONNECTED TO MONGO!`);
+    })
+    .catch((err) => {
+        console.log(`OH NO! MONGO CONNECTION ERROR!`);
+        console.log(err);
+    })
 
   // Get the default connection
   const db = mongoose.connection;
 
-  const ae = new submissionModel(submission)
+  const submissionModel = new Submission(submission)
+  submissionModel.save((err, submission) => {
+    if (err) return console.error(err);
+    console.log(submission._id + " saved to submission collection.");
+  });
 
   // Bind connection to error event (to get notification of connection errors)
   db.on("error", console.error.bind(console, "MongoDB connection error:"));
   return res.send(
-    `thank youu for responding to my poll ${
-      submission.who?.username ?? ""
-    }! u submitted <b>option ${req.body["option"]}</b> as your option. time = ${
-      submission.date?.time
-    }`
+    `thank youu for responding to my poll ${submission.who?.username ?? ""
+    }! u submitted <b>option ${req.body["option"]}</b> as your option.` //frontend response
   );
 });
 

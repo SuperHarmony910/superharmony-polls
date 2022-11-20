@@ -14,7 +14,7 @@ export interface PollSubmission {
   who?: {
     discord_id?: number;
     username: string | undefined;
-    discriminator?: number;
+    discriminator?: string;
   };
   date?: {
     day: string;
@@ -37,7 +37,7 @@ const submissionSchema = new Schema<PollSubmission>({
 });
 
 // Compile model from schema
-export const submissionModel = mongoose.model("submission", submissionSchema);
+export const Submission = mongoose.model("submission", submissionSchema);
 
 /* consider taking from this
 {
