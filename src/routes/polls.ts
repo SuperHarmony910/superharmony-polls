@@ -10,7 +10,7 @@ import {
 import fetch from "node-fetch";
 const app = Router();
 let submission: PollSubmission;
-app.use(express.static(path.resolve(__dirname + "../public")));
+app.use(express.static(path.resolve(__dirname + "../polls/index")));
 import cookieParser from "cookie-parser";
 import mongoose from "mongoose";
 
@@ -25,7 +25,7 @@ const polls: PollQuestion[] = [
     id: 1,
     name: "poll 1",
     description: "poll 1 description",
-    options: ["Option 1", "Option 2", "Option 3", "Option 4"],
+    options: ["Option 1", "Option 2", "Option 3", "Option 4", "Option 5"],
   },
   {
     id: 2,
@@ -38,6 +38,17 @@ const polls: PollQuestion[] = [
 // middleware that is specific to this router
 app.use((req, res, next) => {
   next();
+});
+
+app.get("/:id/create", (req, res) => res.sendFile(path.resolve(__dirname + "../polls/public/create.html")));
+
+app.post("/:id/create", (req, res) => {
+  const poll = polls.find((p) => p.id === parseInt(req.params.id));
+  if (poll) {
+    res.render("create", { poll });
+  } else {
+    res.status(404).send("Poll not found");
+  }
 });
 
 app.get("/:id", async (req: Request, res: Response) => {
@@ -60,7 +71,7 @@ app.get("/:id", async (req: Request, res: Response) => {
     console.debug("redirected");
     return res.redirect(discordOauthUrl);
   }
-  res.sendFile(path.resolve("public/poll.html"));
+  res.sendFile(path.resolve("public/polls/index.html"));
   console.debug("file sent");
 });
 
@@ -85,7 +96,7 @@ app.get("/", async (req: Request, res: Response) => {
       choice: choice,
       who: {
         username: user.username,
-        discriminator: user.discriminator,
+        discriminator: String(user.discriminator),
         discord_id: user.id,
       },
       date: {
@@ -148,11 +159,12 @@ app.post("/:id", async (req: Request, res: Response) => {
   const submissionModel = new Submission(submission)
   submissionModel.save((err, submission) => {
     if (err) return console.error(err);
-    console.log(submission._id + " saved to submission collection.");
+    console.log(`${submission._id} (${submission.who?.username ?? 'anonymous'}) saved to poll submission collection.`);
   });
 
   // Bind connection to error event (to get notification of connection errors)
   db.on("error", console.error.bind(console, "MongoDB connection error:"));
+
   return res.send(
     `thank youu for responding to my poll ${submission.who?.username ?? ""
     }! u submitted <b>option ${req.body["option"]}</b> as your option.` //frontend response
