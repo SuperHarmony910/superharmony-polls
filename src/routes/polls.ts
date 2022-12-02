@@ -13,6 +13,8 @@ let submission: PollSubmission;
 app.use(express.static(path.resolve(__dirname + "../polls/index")));
 import cookieParser from "cookie-parser";
 import mongoose from "mongoose";
+import UglifyJS from "uglify-js";
+import fs from "fs"
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -127,6 +129,9 @@ app.get("/:id/json", async (req: Request, res: Response) => {
 });
 
 app.post("/:id", async (req: Request, res: Response) => {
+  if (!polls[parseInt(req.params.id)] || !Array(polls).includes(req.params.id)) {
+    const page = UglifyJS.minify(fs.readFileSync('../public/polls/pollConstructor.html', 'utf-8')).toString().replace('PAGE_NUMBER', req.params.id)
+  }
   if (req.body["option"]) {
     //frontend response
     submission = {
